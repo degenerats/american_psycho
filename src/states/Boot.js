@@ -9,6 +9,10 @@ export default class extends Phaser.State {
   }
 
   preload () {
+    // Center game area
+    game.scale.pageAlignHorizontally = true
+    game.scale.pageAlignVertically = true
+
     WebFont.load({
       google: {
         families: ['Bangers']
