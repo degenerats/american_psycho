@@ -1,6 +1,7 @@
 /* globals __DEV__ */
 import Phaser from 'phaser'
 import Mushroom from '../sprites/Mushroom'
+import Whore from '../sprites/Whore'
 
 export default class extends Phaser.State {
   init () {}
@@ -45,15 +46,16 @@ export default class extends Phaser.State {
     )
     this.player = player
 
-    let christy = game.add.tileSprite(
-      120,
-      500,
-      playerOpt.width,
-      playerOpt.height,
-      "player"
-    )
-    game.physics.enable(christy, Phaser.Physics.ARCADE);
-    this.christy = christy
+    // Добавляем шлюху
+    this.christy = new Whore({
+       game: this.game,
+       x: this.world.centerX,
+       y: this.world.height,
+       asset: 'player',
+       width: 50,
+       height: 70
+    });
+    this.christy.init()
 
     let chainsawOpt = {
       width: 27,
@@ -113,7 +115,7 @@ export default class extends Phaser.State {
     // }
 
     // console.warn(this.chaisaw.angle);
-    // // 0 
+    // // 0
     // // if (this.chaisaw.angle < this.o.angle) {
     // //   this.chaisaw.angle--
     // // } else if (this.chaisaw.angle > -this.o.angle) {
