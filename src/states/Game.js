@@ -38,13 +38,13 @@ export default class extends Phaser.State {
       asset: 'player'
     })
     // let chainsawOpt = { width: 27, height: 55, angle: 20 }
-    // this.chainsaw = new Chainsaw({
-    //   game: this.game,
-    //   x: this.world.centerX,
-    //   y: 100,
-    //   asset: 'chainsaw'
-    // })
-    this.chainsaw = new ChainsawP2({
+    this.chainsaw = new Chainsaw({
+      game: this.game,
+      x: this.world.centerX,
+      y: 100,
+      asset: 'chainsaw'
+    })
+    this.chainsawP2 = new ChainsawP2({
         game: this.game,
         x: this.world.centerX,
         y: 100,
@@ -54,6 +54,7 @@ export default class extends Phaser.State {
 
     this.game.add.existing(this.player)
     this.game.add.existing(this.chainsaw)
+    // this.game.add.existing(this.chainsawP2)
 
 
     // Добавляем шлюху
