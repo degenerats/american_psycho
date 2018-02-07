@@ -12,20 +12,20 @@ export default class extends Phaser.Sprite {
     this.direction = "right"
   }
 
-  _isInBounds () {
+  _isInBounds() {
     console.warn(((this.position.x >= BOUNDS) && (this.position.x <= game.width - this.width - BOUNDS)));
     return ((this.position.x >= BOUNDS) && (this.position.x <= game.width - this.width - BOUNDS))
   }
 
-  takeChainsaw (chainsaw) {
+  takeChainsaw(chainsaw) {
     this.chainsaw = chainsaw
   }
-  releaseChainsaw () {
+  releaseChainsaw() {
     this.chainsaw.release(this.direction)
     this.chainsaw = null
   }
 
-  moveLeft () {
+  moveLeft() {
     if (this._isInBounds()) {
       this.direction = "left"
       this.position.x -= MOVEMENT_SPEED
@@ -34,7 +34,7 @@ export default class extends Phaser.Sprite {
       }
     }
   }
-  moveRight () {
+  moveRight() {
     if (this._isInBounds()) {
       this.direction = "right"
       this.position.x += MOVEMENT_SPEED
@@ -45,6 +45,6 @@ export default class extends Phaser.Sprite {
   }
 
   update() {
-    
+
   }
 }
