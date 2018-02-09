@@ -6,6 +6,7 @@ import Chainsaw from '../sprites/Chainsaw'
 import ChainsawP2 from '../sprites/ChainsawP2'
 import Player from '../sprites/Player'
 import Scores from '../sprites/Scores'
+import WhoreManager from '../utils/WhoreManager'
 
 export default class extends Phaser.State {
   init () {}
@@ -62,17 +63,21 @@ export default class extends Phaser.State {
     // this.player.constraint = game.physics.p2.createRevoluteConstraint(this.player, [0, -10], this.chainsawP2, [0, 10]);
     // // game.physics.p2.createSpring(this.player, this.chainsawP2, 100, 0, 5);
     // // game.physics.p2.createRotationalSpring(this.player, this.chainsawP2, 20, 100, 5)
+    // 
+    // 
 
-    // Добавляем шлюху
-    this.christy = new Whore({
-       game: this.game,
-       x: this.world.centerX,
-       y: this.world.height,
-       asset: 'player',
-       width: 50,
-       height: 70
-    });
-    this.christy.init()
+    // Шлюхин менеджер
+    const whoreOptions = {
+      whoreClass: Whore,
+      positions: [
+        {
+          x: this.game.width - 50,
+          y: this.game.height - 100,
+        }
+      ]
+    }
+    this.whoreManager = new WhoreManager({ game }, whoreOptions);
+    this.whoreManager.start()
 
     // register 'space' key
     this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
@@ -85,6 +90,8 @@ export default class extends Phaser.State {
   update () {
     // this.player.body.setZeroVelocity();
 
+    console.log(this.whoreManager.stats);
+
     if (this.rightKey.isDown) {
       this.player.moveRight()
     }
@@ -92,7 +99,7 @@ export default class extends Phaser.State {
       this.player.moveLeft()
     }
 
-    game.physics.arcade.collide(this.chainsaw, this.christy, this.hitting, null, this);
+    game.physics.arcade.collide(this.chainsaw, this.whoreManager.getWhores(), this.hitting, null, this);
   }
 
   takeNewChainsaw () {
@@ -109,8 +116,8 @@ export default class extends Phaser.State {
 
   hitting () {
     console.warn("hit!")
-    // this.christy.body.enable = false
-    this.chainsaw.body.enable = false
+    this.whoreManager.getWhores().kill()
+    this.chainsaw.destroy()
     this.scores.addScore(25)
     this.takeNewChainsaw()
   }
