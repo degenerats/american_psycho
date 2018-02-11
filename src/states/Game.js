@@ -57,13 +57,20 @@ export default class extends Phaser.State {
       return new Ladder({
         game: this.game,
         x: this.game.width / 2,
-        y: (floor * (ladderHeight - platformHeight)) + 190,
+        y: (floor * (ladderHeight - platformHeight)) + 178,
         ladderHeight: ladderHeight,
         floor: floor,
         platformWidth: platformWidth,
         platformHeight: platformHeight
       });
     });
+
+    const floor = game.add.sprite(game.width/2, game.height - 10);
+    this.game.physics.enable(floor, Phaser.Physics.P2JS, true);
+    floor.floor = 4;
+    floor.body.dynamic = false;
+    floor.body.clearShapes();
+    floor.body.addRectangle(game.width, 20);
 
     // let playerOpt = { width: 50, height: 70 }
     this.player = new Player({
@@ -94,7 +101,8 @@ export default class extends Phaser.State {
 
     // Шлюхин менеджер
     const whoreOptions = {
-      ladders: this.ladders
+      ladders: this.ladders,
+      floor: floor
     }
     this.whoreManager = new WhoreManager({ game }, whoreOptions);
     this.whoreManager.start()

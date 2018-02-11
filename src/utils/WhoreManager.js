@@ -5,6 +5,7 @@ import { randomItem } from '../utils';
 export default class WhoreManager {
   constructor (game, opt) {
   	this.game = game.game;
+  	this.floor = opt.floor;
   	this.ladders = opt.ladders;
   	this.positions = opt.positions || [0, 0];
   	this.stats = {
@@ -30,7 +31,7 @@ export default class WhoreManager {
   }
 
   addWhore () {
-  	const randomLadder = this.ladders[0];
+  	const randomLadder = randomItem(this.ladders);
   	const floor = randomLadder.floor;
   	const position = randomLadder.getRespawnPosition();
   	const direction = randomLadder.direction;
@@ -46,26 +47,38 @@ export default class WhoreManager {
 
     whore.init()
 
+    game.physics.p2.setImpactEvents(true);
+
+    game.physics.p2.restitution = 0;
+
     const laddersNext = reject(this.ladders, (ladder) => ladder.floor < floor)
     
     whore.body.setCollisionGroup(whoreGroup);
-    laddersNext.forEach( (ladder) => ladder.body.setCollisionGroup(laddersGroup) )
+
+    laddersNext.push(this.floor)
+    laddersNext.forEach( (ladder) => {
+    	ladder.body.setCollisionGroup(laddersGroup);
+    	ladder.body.collides(whoreGroup);
+    });
+
+    whore.checkWorldBounds = true;
 
     whore.body.collides(laddersGroup);
-    laddersNext.forEach( (ladder) => ladder.body.collides(whoreGroup) )
+
+    whore.events.onOutOfBounds.add( () => whore.destroy(), this);
 
 		let updaterGroup = null;
 
     const updater = (body) => {
+    	if(body === null) return;
     	if(body.sprite.floor > laddersNext[0].floor) {
-    		whore.velocityX = -whore.velocityX;
+    		whore.reverse();
     		laddersNext.shift();
     		whore.body.removeCollisionGroup(laddersGroup);
     		whore.body.removeCollisionGroup(updaterGroup);
     		updaterGroup = game.physics.p2.createCollisionGroup();
     		laddersNext.forEach( (ladder) => ladder.body.setCollisionGroup(updaterGroup) );
-    		console.log(laddersNext.map( (ladder) => ladder.floor))
-    		whore.body.collides(updaterGroup);
+    		whore.body.collides([updaterGroup]);
     	}
     }
 

@@ -3,7 +3,7 @@ import Phaser from 'phaser'
 export default class extends Phaser.Sprite {
   constructor ({ game, x, y, asset, direction }) {
     super(game, x, y, asset);
-    this.velocityX = direction === 'right' ? 100 : -100;
+    this.velocityX = direction === 'right' ? 300 : -300;
   }
 
   update () {
@@ -15,11 +15,13 @@ export default class extends Phaser.Sprite {
     this.game.physics.enable(this, Phaser.Physics.P2JS, true);
     this.body.fixedRotation = true;
     this.body.collideWorldBounds = true;
-    this.body.clearShapes()
-    this.body.setCircle(32)
-    // this.body.onWorldBounds = new Phaser.Signal();
-    // this.body.onWorldBounds.add(this._handleExitSignal, this);
+    this.body.clearShapes();
+    this.body.setCircle(32);
     return this;
+  }
+
+  reverse () {
+    this.velocityX = -this.velocityX;
   }
 
   run () {
