@@ -6,13 +6,14 @@ export default class extends Phaser.Sprite {
     this.isReleased = false
 
     this.anchor.setTo(0.5)
-    // game.physics.enable(this, Phaser.Physics.ARCADE);
     game.physics.p2.enable(this, false)
-    // this.body.angle = 30  // Angle for test drop
+    game.physics.p2.updateBoundsCollisionGroup()
+    this.body.angle = 30  // Angle for test drop
     // ! maybe will be needed to loads the polygon data (in future)
     // contra.body.clearShapes();
     // contra.body.loadPolygon('physicsData', 'contra2');
-
+    game.add.existing(this)
+    this.body.data.gravityScale = 0
   }
 
   release (direction, velocity) {
@@ -26,9 +27,42 @@ export default class extends Phaser.Sprite {
       this.body.velocity.y = 100
     }
   }
+
+  crush() {
+    console.warn("chainsaw destroyed");
+    const PARTICLES_LIFETIME = 1000
+
+    let crushPosition = {
+      x: this.body.position.x,
+      y: this.body.position.y
+    }
+    this.destroy()
+
+    // Create crush particles; saw part
+    var emitterSaw = game.add.emitter(crushPosition.x, crushPosition.y + 35, 100);
+    emitterSaw.makeParticles('saw_particle');
+    emitterSaw.minParticleScale = 0.1;
+    emitterSaw.maxParticleScale = 0.3;
+    emitterSaw.start(true, PARTICLES_LIFETIME, null, 20);
+    // Create crush particles; grip part
+    var emitterGrip = game.add.emitter(crushPosition.x, crushPosition.y, 100);
+    emitterGrip.makeParticles('grip_particle');
+    emitterGrip.minParticleScale = 0.1;
+    emitterGrip.maxParticleScale = 0.5;
+    emitterGrip.start(true, PARTICLES_LIFETIME, null, 7);
+
+    if (this.onCrush) {
+      this.onCrush()
+    }
+  }
+
   update() {
     if (this.isReleased) {
-      game.physics.p2.gravity.y = 150
+      this.body.data.gravityScale = 0.25
     }
+    // if (this.body.onFloor()) {
+    //   this.body.enable = false
+    //   this.crush()
+    // }
   }
 }

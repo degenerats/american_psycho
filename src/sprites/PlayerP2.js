@@ -1,7 +1,6 @@
 import Phaser from 'phaser'
 
 const MOVEMENT_SPEED = 300
-const BOUNDS = 30  // paddings from left and right
 
 export default class extends Phaser.Sprite {
   constructor({ game, x, y, asset }) {
@@ -9,6 +8,9 @@ export default class extends Phaser.Sprite {
 
     // this.anchor.setTo(0.5)
     game.physics.p2.enable(this, false)
+    var playerCollisionGroup = game.physics.p2.createCollisionGroup();
+    this.body.setCollisionGroup(playerCollisionGroup)
+    game.physics.p2.updateBoundsCollisionGroup()
     this.body.data.gravityScale = 0;
     this.body.setZeroDamping();
     this.body.setZeroVelocity();
@@ -21,11 +23,13 @@ export default class extends Phaser.Sprite {
     this.chainsaw = chainsaw
   }
   releaseChainsaw () {
-    let velocity = -this.body.data.velocity[0]*50
-    console.warn(velocity);
-    game.physics.p2.removeConstraint(this.constraint)
-    this.chainsaw.release(this.direction, velocity)
-    this.chainsaw = null
+    if (this.chainsaw !== null) {
+      let velocity = -this.body.data.velocity[0]*50
+      console.warn(velocity);
+      game.physics.p2.removeConstraint(this.constraint)
+      this.chainsaw.release(this.direction, velocity)
+      this.chainsaw = null
+    }
   }
 
   moveLeft () {

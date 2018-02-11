@@ -26,7 +26,6 @@ export default class extends Phaser.Text {
       fill: '#333',
       smoothed: false
     })
-    console.warn(this.hint);
   }
 
   reset () {
@@ -35,7 +34,6 @@ export default class extends Phaser.Text {
 
   update() {
     if (this.hint) {
-      console.warn(this.hint.alpha)
       this.hint.position.y -= 1
       if ((this.hint.alpha - 0.02) <= 0) {
         this.hint.alpha = 0
