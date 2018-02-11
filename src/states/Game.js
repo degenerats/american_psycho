@@ -13,14 +13,19 @@ export default class extends Phaser.State {
   preload () {}
 
   create () {
-    // const bannerText = 'American Psycho'
     // let banner = this.add.text(this.world.centerX, 20, bannerText, {
     //   font: '22px Press Start 2P',
     //   fill: '#333',
     //   smoothed: false
     // })
-    // banner.padding.set(10, 16)
-    // banner.anchor.setTo(0.5)
+
+    this.bgMusic = game.add.audio('bg');
+    // this.bgMusic.play()
+    this.bgMusic.volume = 0.4
+    
+    this.sounds = {}
+    this.sounds.exp = game.add.audio('exp2');
+    this.sounds.exp.volume = 0.15
 
     this.scores = new Scores({
       game: this.game,
@@ -28,6 +33,7 @@ export default class extends Phaser.State {
       y: 10
     })
     this.game.add.existing(this.scores)
+    this.scores.createScoresHint(150, 150, 200)
 
     // Arcade physics
     game.physics.startSystem(Phaser.Physics.P2JS)
@@ -40,6 +46,8 @@ export default class extends Phaser.State {
 
     // Player platform
     let platform = game.add.tileSprite(0, 100, this.game.width, 35, "mushroom");
+    game.physics.enable(platform, Phaser.Physics.ARCADE);
+    platform.body.immovable = true
 
     // Лестничные пролеты
     const ladderHeight = 132;
@@ -124,17 +132,26 @@ export default class extends Phaser.State {
       y: this.player.position.y+70,
       asset: 'chainsaw'
     })
-    this.game.add.existing(this.chainsaw)
     this.player.takeChainsaw(this.chainsaw)
-    this.chainsaw.onCrush = () => { this.takeNewChainsaw() }
+    this.chainsaw.onCrush = () => {
+      this.sounds.exp.play()
+      this.takeNewChainsaw()
+    }
   }
 
   hitting () {
     console.warn("hit!")
     this.whoreManager.getWhores().kill()
+    this.scores.addScore(this.scoresToAdd())
     this.chainsaw.destroy()
-    this.scores.addScore(25)
     this.takeNewChainsaw()
+  }
+
+  scoresToAdd() {
+    var scoresToAdd = 0
+    scoresToAdd = this.chainsaw.body.position.y * 100 / (this.game.height - 100)
+
+    return scoresToAdd
   }
 
   render () {

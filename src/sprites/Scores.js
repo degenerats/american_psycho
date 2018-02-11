@@ -16,8 +16,17 @@ export default class extends Phaser.Text {
 
   addScore (num) {
     var currentScores = parseInt(this._text, 10)
-    currentScores += num
+    currentScores += parseInt(num, 10)
     this.setText(""+currentScores)
+  }
+
+  createScoresHint (x, y, num) {
+    this.hint = this.game.add.text(x, y, `+${num}`, {
+      font: '18px Press Start 2P',
+      fill: '#333',
+      smoothed: false
+    })
+    console.warn(this.hint);
   }
 
   reset () {
@@ -25,6 +34,16 @@ export default class extends Phaser.Text {
   }
 
   update() {
-    
+    if (this.hint) {
+      console.warn(this.hint.alpha)
+      this.hint.position.y -= 1
+      if ((this.hint.alpha - 0.02) <= 0) {
+        this.hint.alpha = 0
+        this.hint.destroy()
+        this.hint = undefined
+      } else {
+        this.hint.alpha -= 0.02
+      }
+    }
   }
 }

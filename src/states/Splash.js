@@ -20,6 +20,14 @@ export default class extends Phaser.State {
     this.load.image('ladder',        'assets/images/ladder_test.png')
     this.load.image('saw_particle',  'assets/images/cube.png')
     this.load.image('grip_particle', 'assets/images/chainsaw.png')
+
+    this.load.audio('bg', [
+      'assets/audio/bg_music.mp3',
+      'assets/audio/bg_music.ogg'
+    ]);
+    this.load.audio('exp1', 'assets/audio/explosion1.wav');
+    this.load.audio('exp2', 'assets/audio/explosion2.wav');
+    this.load.audio('exp3', 'assets/audio/explosion3.wav');
   }
 
   create () {

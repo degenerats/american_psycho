@@ -11,6 +11,8 @@ export default class extends Phaser.Sprite {
     // this.angle = 20  // Angle for test drop
     this.body.collideWorldBounds = true;
     this.body.bounce.x = 0.5;
+
+    game.add.existing(this)
   }
 
   release (direction) {
