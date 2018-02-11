@@ -70,7 +70,6 @@ export default class WhoreManager {
 		let updaterGroup = null;
 
     const updater = (body) => {
-    	if(body === null) return;
     	if(body.sprite.floor > laddersNext[0].floor) {
     		whore.reverse();
     		laddersNext.shift();
