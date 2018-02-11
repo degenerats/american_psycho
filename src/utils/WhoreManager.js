@@ -1,10 +1,12 @@
+import Whore from '../sprites/Whore';
+import { reject } from 'lodash';
 import { randomItem } from '../utils';
 
 export default class WhoreManager {
   constructor (game, opt) {
   	this.game = game.game;
+  	this.ladders = opt.ladders;
   	this.positions = opt.positions || [0, 0];
-  	this.whoreClass = opt.whoreClass;
   	this.stats = {
   		killed: 0,
   		away: 0 
@@ -28,17 +30,46 @@ export default class WhoreManager {
   }
 
   addWhore () {
-  	const position = randomItem(this.positions);
-  	const whore = new this.whoreClass({
-       game: this.game,
-       asset: 'whore',
-       x: position.x,
-       y: position.y
+  	const randomLadder = this.ladders[0];
+  	const floor = randomLadder.floor;
+  	const position = randomLadder.getRespawnPosition();
+  	const direction = randomLadder.direction;
+  	const laddersGroup = game.physics.p2.createCollisionGroup();
+  	const whoreGroup = game.physics.p2.createCollisionGroup();
+  	const whore = new Whore({
+      game: this.game,
+      asset: 'whore',
+      x: position.x,
+      y: position.y,
+      direction: direction
     });
 
-    whore
-    	.init()
-    	.run()
+    whore.init()
+
+    const laddersNext = reject(this.ladders, (ladder) => ladder.floor < floor)
+    
+    whore.body.setCollisionGroup(whoreGroup);
+    laddersNext.forEach( (ladder) => ladder.body.setCollisionGroup(laddersGroup) )
+
+    whore.body.collides(laddersGroup);
+    laddersNext.forEach( (ladder) => ladder.body.collides(whoreGroup) )
+
+		let updaterGroup = null;
+
+    const updater = (body) => {
+    	if(body.sprite.floor > laddersNext[0].floor) {
+    		whore.velocityX = -whore.velocityX;
+    		laddersNext.shift();
+    		whore.body.removeCollisionGroup(laddersGroup);
+    		whore.body.removeCollisionGroup(updaterGroup);
+    		updaterGroup = game.physics.p2.createCollisionGroup();
+    		laddersNext.forEach( (ladder) => ladder.body.setCollisionGroup(updaterGroup) );
+    		console.log(laddersNext.map( (ladder) => ladder.floor))
+    		whore.body.collides(updaterGroup);
+    	}
+    }
+
+    whore.body.onBeginContact.add(updater, this);
 
     whore.events.onKilled.add(() => {
     	this.addWhore();

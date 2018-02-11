@@ -1,11 +1,11 @@
 /* globals __DEV__ */
 import Phaser from 'phaser'
 import Mushroom from '../sprites/Mushroom'
-import Whore from '../sprites/Whore'
 import Chainsaw from '../sprites/Chainsaw'
 import ChainsawP2 from '../sprites/ChainsawP2'
 import Player from '../sprites/Player'
 import Scores from '../sprites/Scores'
+import Ladder from '../sprites/Ladder'
 import WhoreManager from '../utils/WhoreManager'
 
 export default class extends Phaser.State {
@@ -30,7 +30,8 @@ export default class extends Phaser.State {
     this.game.add.existing(this.scores)
 
     // Arcade physics
-    game.physics.startSystem(Phaser.Physics.ARCADE)
+    game.physics.startSystem(Phaser.Physics.P2JS)
+    game.physics.p2.gravity.y = 760;
     // ArcadeP2 physics
     // game.physics.startSystem(Phaser.Physics.P2JS);
     // game.physics.p2.gravity.y = 0;
@@ -39,6 +40,22 @@ export default class extends Phaser.State {
 
     // Player platform
     let platform = game.add.tileSprite(0, 100, this.game.width, 35, "mushroom");
+
+    // Лестничные пролеты
+    const ladderHeight = 132;
+    const platformWidth = 70;
+    const platformHeight = 5;
+    this.ladders = [1, 2, 3].map( (floor) => {
+      return new Ladder({
+        game: this.game,
+        x: this.game.width / 2,
+        y: (floor * (ladderHeight - platformHeight)) + 190,
+        ladderHeight: ladderHeight,
+        floor: floor,
+        platformWidth: platformWidth,
+        platformHeight: platformHeight
+      });
+    });
 
     // let playerOpt = { width: 50, height: 70 }
     this.player = new Player({
@@ -64,20 +81,20 @@ export default class extends Phaser.State {
     // // game.physics.p2.createSpring(this.player, this.chainsawP2, 100, 0, 5);
     // // game.physics.p2.createRotationalSpring(this.player, this.chainsawP2, 20, 100, 5)
     // 
-    // 
+    //
+    //
 
     // Шлюхин менеджер
     const whoreOptions = {
-      whoreClass: Whore,
-      positions: [
-        {
-          x: this.game.width - 50,
-          y: this.game.height - 100,
-        }
-      ]
+      ladders: this.ladders
     }
     this.whoreManager = new WhoreManager({ game }, whoreOptions);
     this.whoreManager.start()
+
+    // this.whoreManager.getWhores().body.clearCollision(this.ladder.body)
+
+    // this.polygon = new Phaser.Polygon(points);
+    // this.game.add.existing(this.polygon);
 
     // register 'space' key
     this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
@@ -89,8 +106,6 @@ export default class extends Phaser.State {
 
   update () {
     // this.player.body.setZeroVelocity();
-
-    console.log(this.whoreManager.stats);
 
     if (this.rightKey.isDown) {
       this.player.moveRight()

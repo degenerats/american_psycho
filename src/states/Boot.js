@@ -25,7 +25,6 @@ export default class extends Phaser.State {
 
     this.load.image('loaderBg', './assets/images/loader-bg.png')
     this.load.image('loaderBar', './assets/images/loader-bar.png')
-    this.load.image('whore', './assets/images/whore.png')
   }
 
   render () {
