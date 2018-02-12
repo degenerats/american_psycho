@@ -14,12 +14,6 @@ export default class extends Phaser.State {
   preload () {}
 
   create () {
-    // let banner = this.add.text(this.world.centerX, 20, bannerText, {
-    //   font: '22px Press Start 2P',
-    //   fill: '#333',
-    //   smoothed: false
-    // })
-
     this.bgMusic = game.add.audio('bg');
     // this.bgMusic.play()
     this.bgMusic.volume = 0.4
@@ -28,13 +22,15 @@ export default class extends Phaser.State {
     this.sounds.exp = game.add.audio('exp2');
     this.sounds.exp.volume = 0.15
 
+    var style = { font: "22px Press Start 2P", fill: "#555" }
     this.scores = new Scores({
       game: this.game,
       x: this.game.width - 10,
-      y: 10
+      y: 10,
+      text: "",
+      style: style
     })
-    this.game.add.existing(this.scores)
-    this.scores.createScoresHint(150, 150, 200)
+    // this.scores.createScoresHint(150, 150, 200)
 
     // Arcade physics
     game.physics.startSystem(Phaser.Physics.P2JS)
@@ -46,9 +42,10 @@ export default class extends Phaser.State {
     // game.physics.p2.updateBoundsCollisionGroup();
 
     // Player platform
-    let platform = game.add.tileSprite(0, 100, this.game.width, 35, "mushroom");
-    game.physics.enable(platform, Phaser.Physics.ARCADE);
-    platform.body.immovable = true
+    let platform = game.add.tileSprite(this.game.width/2, 100+17, this.game.width, 35, "mushroom")
+    // game.physics.enable(platform, Phaser.Physics.ARCADE);
+    this.game.physics.enable(platform, Phaser.Physics.P2JS, true)
+    platform.body.static = true
 
     // Лестничные пролеты
     const ladderHeight = 132;
@@ -73,7 +70,6 @@ export default class extends Phaser.State {
     floor.body.clearShapes();
     floor.body.addRectangle(game.width, 20);
 
-    // let playerOpt = { width: 50, height: 70 }
     this.player = new PlayerP2({
       game: this.game,
       // x: this.world.centerX - 50 / 2,
@@ -85,20 +81,13 @@ export default class extends Phaser.State {
     this.game.add.existing(this.player)
     this.takeNewChainsaw()
     
-    // this.chainsawP2 = new ChainsawP2({
-    //   game: this.game,
-    //   x: this.world.centerX,
-    //   y: 100,
-    //   asset: 'chainsaw'
-    // })
     var playerCollisionGroup = game.physics.p2.createCollisionGroup();
     this.chainsaw.body.setCollisionGroup(playerCollisionGroup)
-    // this.player.constraint = game.physics.p2.createRevoluteConstraint(this.player, [0, -10], this.chainsawP2, [0, 10]);
-    // // game.physics.p2.createSpring(this.player, this.chainsawP2, 100, 0, 5);
-    // // game.physics.p2.createRotationalSpring(this.player, this.chainsawP2, 20, 100, 5)
-    // 
-    //
-    //
+    // this.player.constraint = game.physics.p2.createRevoluteConstraint(this.chainsaw, [0, -10], this.player, [0, 10]);
+    // game.physics.p2.createSpring(this.player, this.chainsaw, 100, 0, 5);
+    // game.physics.p2.createRotationalSpring(this.player, this.chainsaw, 20, 100, 5)
+    // var constraint = game.physics.p2.createLockConstraint(this.chainsaw, this.player, [0, 50], 80)
+    // game.physics.p2.createRevoluteConstraint(this.chainsaw, [50, 100], this.player, [0, 0])
 
     // Шлюхин менеджер
     const whoreOptions = {
@@ -124,8 +113,6 @@ export default class extends Phaser.State {
   }
 
   update () {
-    // this.player.body.setZeroVelocity();
-
     if (this.rightKey.isDown) {
       this.player.moveRight()
     }
@@ -141,10 +128,14 @@ export default class extends Phaser.State {
       game: this.game,
       // x: this.player.position.x+25,
       // y: this.player.position.y+70,
-      x: this.player.position.x+25,
-      y: this.player.position.y+20,
+      // x: this.player.position.x+25,
+      // y: this.player.position.y+20,
+      x: 200, y:200,
       asset: 'chainsaw'
     })
+    var walk = this.chainsaw.animations.add('vroom');
+    this.chainsaw.animations.play('vroom', 30, true);
+
     this.player.takeChainsaw(this.chainsaw)
     this.chainsaw.onCrush = () => {
       this.sounds.exp.play()

@@ -8,12 +8,17 @@ export default class extends Phaser.Sprite {
     this.anchor.setTo(0.5)
     game.physics.p2.enable(this, false)
     game.physics.p2.updateBoundsCollisionGroup()
-    this.body.angle = 30  // Angle for test drop
+    this.body.angle = 70  // Angle for test drop
     // ! maybe will be needed to loads the polygon data (in future)
     // contra.body.clearShapes();
     // contra.body.loadPolygon('physicsData', 'contra2');
     game.add.existing(this)
     this.body.data.gravityScale = 0
+
+    // this.body.onBeginContact.add(() => {
+    //   this.enable = false
+    //   this.crush()
+    // }, this)
   }
 
   release (direction, velocity) {
@@ -29,12 +34,12 @@ export default class extends Phaser.Sprite {
   }
 
   crush() {
-    console.warn("chainsaw destroyed");
+    console.warn("chainsaw destroyed")
     const PARTICLES_LIFETIME = 1000
 
     let crushPosition = {
-      x: this.body.position.x,
-      y: this.body.position.y
+      x: this.position.x,
+      y: this.position.y
     }
     this.destroy()
 
