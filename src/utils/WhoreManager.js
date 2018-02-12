@@ -12,6 +12,8 @@ export default class WhoreManager {
   		killed: 0,
   		away: 0 
   	}
+  	this.laddersGroups = this.createLadderGroups();
+  	this.floorGroup = this.createFloorGroup();
   }
 
   start () {
@@ -30,12 +32,26 @@ export default class WhoreManager {
   	return this.stats.away;
   }
 
+  createLadderGroups () {
+  	return this.ladders.map( (ladder) => {
+  		const group = game.physics.p2.createCollisionGroup();
+  		ladder.body.setCollisionGroup(group);
+  		group.floor = ladder.floor;
+  		return group;
+  	})
+  }
+
+  createFloorGroup () {
+  	const group = game.physics.p2.createCollisionGroup();
+  	this.floor.body.setCollisionGroup(group)
+  	return group;
+  }
+
   addWhore () {
   	const randomLadder = randomItem(this.ladders);
   	const floor = randomLadder.floor;
   	const position = randomLadder.getRespawnPosition();
   	const direction = randomLadder.direction;
-  	const laddersGroup = game.physics.p2.createCollisionGroup();
   	const whoreGroup = game.physics.p2.createCollisionGroup();
   	const whore = new Whore({
       game: this.game,
@@ -49,35 +65,38 @@ export default class WhoreManager {
 
     game.physics.p2.setImpactEvents(true);
 
-    game.physics.p2.restitution = 0;
-
-    const laddersNext = reject(this.ladders, (ladder) => ladder.floor < floor)
+    const laddersNext = reject(this.laddersGroups, (ladderGroup) => ladderGroup.floor < floor)
     
     whore.body.setCollisionGroup(whoreGroup);
 
-    laddersNext.push(this.floor)
-    laddersNext.forEach( (ladder) => {
-    	ladder.body.setCollisionGroup(laddersGroup);
+    laddersNext.push(this.floor);
+    this.ladders.forEach( (ladder) => {
     	ladder.body.collides(whoreGroup);
     });
 
     whore.checkWorldBounds = true;
 
-    whore.body.collides(laddersGroup);
+    whore.body.collides(this.laddersGroups.slice(floor - 1));
 
-    whore.events.onOutOfBounds.add( () => whore.destroy(), this);
+    // console.log(game.physics.p2.collisionGroups)
 
-		let updaterGroup = null;
+    whore.events.onOutOfBounds.add( () => {
+      // game.physics.p2.reset()
+      game.physics.p2.collisionGroups = reject(game.physics.p2.collisionGroups, (group) => group.mask === whoreGroup.mask)
+    	whore.destroy();
+      game.physics.p2._collisionGroupID = 16;
+    }, this);
+
+    let currentFloor = floor;
 
     const updater = (body) => {
-    	if(body.sprite.floor > laddersNext[0].floor) {
+    	if(body === null) return;
+      console.log(body)
+    	if(body.sprite.floor > currentFloor) {
     		whore.reverse();
-    		laddersNext.shift();
-    		whore.body.removeCollisionGroup(laddersGroup);
-    		whore.body.removeCollisionGroup(updaterGroup);
-    		updaterGroup = game.physics.p2.createCollisionGroup();
-    		laddersNext.forEach( (ladder) => ladder.body.setCollisionGroup(updaterGroup) );
-    		whore.body.collides([updaterGroup]);
+        currentFloor = body.sprite.floor;
+    		whore.body.removeCollisionGroup(this.laddersGroups);
+    		whore.body.collides(this.laddersGroups.slice(body.sprite.floor - 1));
     	}
     }
 

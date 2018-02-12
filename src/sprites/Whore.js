@@ -3,7 +3,7 @@ import Phaser from 'phaser'
 export default class extends Phaser.Sprite {
   constructor ({ game, x, y, asset, direction }) {
     super(game, x, y, asset);
-    this.velocityX = direction === 'right' ? 300 : -300;
+    this.velocityX = direction === 'right' ? 600 : -600;
   }
 
   update () {
